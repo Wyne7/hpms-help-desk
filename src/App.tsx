@@ -13,7 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import { Controller, useForm } from 'react-hook-form'
 
-const SUPPORT_EMAIL = 'help@zenithtri-mm.on.spiceworks.com'
+const SUPPORT_EMAIL = 'helpdesk@zenithtri.com '
 
 const CATEGORY_DATA = [
   { value: 'general', label: 'General' },
@@ -81,38 +81,38 @@ function App() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f4f7f6] font-sans text-[#333]">
-      <header className="flex w-full flex-col">
-        <div className="border-b border-[#e6e6e6] bg-white px-4 py-3 sm:px-10">
-          <p className="font-serif text-[1.75rem] font-bold leading-none tracking-[0.1em] text-[#1a4d8c]">
+    <div className="tw:flex tw:min-h-screen tw:flex-col tw:bg-[#f4f7f6] tw:font-sans tw:text-[#333]">
+      <header className="tw:flex tw:w-full tw:flex-col">
+        <div className="tw:border-b tw:border-[#e6e6e6] tw:bg-white tw:px-4 tw:py-3 tw:sm:px-10">
+          <p className="tw:font-serif tw:text-[1.75rem] tw:font-bold tw:leading-none tw:tracking-[0.1em] tw:text-[#1a4d8c]">
             ZENITH
           </p>
-          <p className="mt-1 text-[0.75rem] font-normal text-[#555] sm:text-sm">
+          <p className="tw:mt-1 tw:text-[0.75rem] tw:font-normal tw:text-[#555] tw:sm:text-sm">
             Technical Resource Initiative
           </p>
         </div>
-        <div className="relative bg-gradient-to-r from-[#183a6e] via-[#255a9e] to-[#2f6fb8] pb-32 pt-14 text-center shadow-[inset_0_-1px_0_rgba(0,0,0,0.06)] sm:pb-40 sm:pt-16">
-          <h1 className="px-4 text-2xl font-semibold tracking-tight text-white sm:text-[1.85rem]">
+        <div className="tw:relative tw:bg-gradient-to-r tw:from-[#183a6e] tw:via-[#255a9e] tw:to-[#2f6fb8] tw:pb-32 tw:pt-14 tw:text-center tw:shadow-[inset_0_-1px_0_rgba(0,0,0,0.06)] tw:sm:pb-40 tw:sm:pt-16">
+          <h1 className="tw:px-4 tw:text-2xl tw:font-semibold tw:tracking-tight tw:text-white tw:sm:text-[1.85rem]">
             Welcome to the Help Desk.
           </h1>
         </div>
       </header>
 
-      <main className="relative z-[1] -mt-24 flex flex-1 justify-center px-4 pb-20 sm:-mt-28 sm:px-8">
-        <div className="mx-auto w-full max-w-[min(36rem,92vw)] rounded-xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_rgba(15,23,42,0.07)] sm:p-9 xl:max-w-[min(42rem,34vw)]">
-          <Box className="mb-8 text-left">
+      <main className="tw:relative tw:z-[1] tw:-mt-24 tw:flex tw:flex-1 tw:justify-center tw:px-3 tw:pb-20 tw:sm:-mt-28 tw:sm:px-8">
+        <div className="tw:mx-auto tw:w-full tw:max-w-[min(48rem,96vw)] tw:rounded-xl tw:border tw:border-slate-200/90 tw:bg-white tw:p-6 tw:shadow-[0_8px_30px_rgba(15,23,42,0.07)] tw:sm:p-9">
+          <Box className="tw:mb-8 tw:text-left">
             <Typography
               variant="h5"
               component="h2"
-              className="text-xl font-bold text-[#1a1a1a]"
+              className="tw:text-xl tw:font-bold tw:text-[#1a1a1a]"
             >
               HPMS Help Desk သို့အခက်အခဲ/ပြင်ဆင်/ဖြည့်စွက်လိုသည်များကိုအကြောင်းကြားခြင်း
             </Typography>
-            <Typography variant="body2" className="mt-3 text-sm leading-relaxed text-[#5a5a5a]">
+            <Typography variant="body2" className="tw:mt-3 tw:text-sm tw:leading-relaxed tw:text-[#5a5a5a]" style={{marginTop: '12px'}}>
               အောက်ဖော်ပြပါသတင်းအချက်အလက်များကိုဖြည့်စွက်ပြီး Ticket ကို Submit
-              ပြုလုပ်ပါ။ နည်းပညာအထောက်ကူပေးရေးအဖွဲ့မှဆက်သွယ်ဆောင်ရွက်ပေးပါမည်။{' '}
+              ပြုလုပ်ပါ။ နည်းပညာအထောက်ကူပေးရေးအဖွဲ့မှဆက်သွယ်ဆောင်ရွက်ပေးပါမည်။{' '}You may also send tickets directly to {' '}
               <a
-                className="text-[#1e5a8a] underline decoration-[#1e5a8a]/40 underline-offset-2 hover:text-[#164a72]"
+                className="tw:text-[#1e5a8a] tw:underline tw:decoration-[#1e5a8a]/40 tw:underline-offset-2 tw:hover:text-[#164a72]"
                 href={`mailto:${SUPPORT_EMAIL}`}
               >
                 {SUPPORT_EMAIL}
@@ -121,18 +121,18 @@ function App() {
             </Typography>
           </Box>
 
-          <hr className="mb-6 border-[#e5e5e5]" />
+          <hr className="tw:mb-6 tw:border-[#e5e5e5]" />
 
           {isSubmitSuccessful && (
             <div
-              className="mb-6 rounded-lg border border-blue-200 bg-blue-50/90 px-4 py-3 text-sm text-blue-950"
+              className="tw:mb-6 tw:rounded-lg tw:border tw:border-blue-200 tw:bg-blue-50/90 tw:px-4 tw:py-3 tw:text-sm tw:text-blue-950"
               role="status"
             >
               Thank you. Your request has been recorded (demo — connect an API to
               persist tickets).
               <button
                 type="button"
-                className="ml-2 font-medium text-blue-800 underline decoration-blue-400"
+                className="tw:ml-2 tw:font-medium tw:text-blue-800 tw:underline tw:decoration-blue-400"
                 onClick={() => reset()}
               >
                 Submit another
@@ -140,7 +140,7 @@ function App() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form className="tw:flex tw:flex-col" onSubmit={handleSubmit(onSubmit)} noValidate>
             <Stack spacing={2}>
               <TextField
                 label="Contact Email (required)"
@@ -263,7 +263,7 @@ function App() {
                         
                         slotProps: {
                           textField: {
-                            label: 'ရက်စွဲ (required)',
+                            label: 'ဖြေရှင်းပေးရန်မျှော်မှန်းသည့်နေ့ (required)',
                             placeholder: 'ရက်စွဲ ရွေးချယ်ပါ (required)',
                             fullWidth: true,
                             variant: 'outlined',
@@ -292,7 +292,7 @@ function App() {
               />
 
               <TextField
-                label="Organization (အဖွဲ့အစည်း) (required)"
+                label="Organization/Hospital (required)"
                 placeholder="Organization name"
                 fullWidth
                 variant="outlined"
@@ -345,17 +345,17 @@ function App() {
         </div>
       </main>
 
-      <footer className="mt-auto border-t border-[#e5e5e5] bg-[#fafafa] px-4 py-6 text-center text-xs text-[#777]">
-        <p className="mb-2">
-          <a className="hover:text-[#333]" href="#">
+      <footer className="tw:mt-auto tw:border-t tw:border-[#e5e5e5] tw:bg-[#fafafa] tw:px-4 tw:py-6 tw:text-center tw:text-xs tw:text-[#777]">
+        <p className="tw:mb-2">
+          <a className="tw:hover:text-[#333]" href="#">
             Privacy Policy
           </a>
-          <span className="mx-2 text-[#ccc]">|</span>
-          <a className="hover:text-[#333]" href="#">
+          <span className="tw:mx-2 tw:text-[#ccc]">|</span>
+          <a className="tw:hover:text-[#333]" href="#">
             Terms of Use
           </a>
         </p>
-        <p className="text-[#999]">Powered by Help Desk</p>
+        <p className="tw:text-[#999]">Powered by Help Desk</p>
       </footer>
     </div>
   )

@@ -1,7 +1,7 @@
-@import 'tailwindcss';
+@import 'tailwindcss' prefix(tw);
 
 @layer base {
   body {
-    @apply m-0 antialiased;
+    @apply tw:m-0 tw:antialiased;
   }
 }
