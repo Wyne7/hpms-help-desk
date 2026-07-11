@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react';
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -49,8 +49,6 @@ type HelpDeskFormValues = {
   districtId: string | ''
   townshipId: string | ''
 }
-
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM1QcWmT5R-qmYW-50-gYaO_COAxh8ReVU06V8MtxieZ1GsR8Oz5BZXMPlkp2UyHly/exec";
 
 const states = [
   { id: "MMR001", name: "Kachin" }, 
