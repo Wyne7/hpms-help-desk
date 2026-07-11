@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -23,6 +24,18 @@ const CATEGORY_DATA = [
   { value: 'other', label: 'Other' },
 ] as const
 
+interface District {
+  id: string;     
+  name: string;
+  state_id: string;
+}
+
+interface Township {
+  id: string;
+  name: string;
+  district_id: string; 
+}
+
 type HelpDeskFormValues = {
   contactEmail: string
   summary: string
@@ -31,15 +44,46 @@ type HelpDeskFormValues = {
   name: string
   incidentDate: string
   facilityName: string
-  organization: string
   phone: string
+  stateId: string | ''
+  districtId: string | ''
+  townshipId: string | ''
 }
 
-function App() {
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM1QcWmT5R-qmYW-50-gYaO_COAxh8ReVU06V8MtxieZ1GsR8Oz5BZXMPlkp2UyHly/exec";
+
+const states = [
+  { id: "MMR001", name: "Kachin" }, 
+  { id: "MMR005", name: "Sagaing" },
+  { id: "MMR014", name: "Shan (South)" },
+  { id: "MMR015", name: "Shan (North)" }
+];
+
+const districts: District[] = [
+  { id: "MMR001D002", name: "Mohnyin", state_id: "MMR001" },
+  { id: "MMR005D003", name: "Monywa", state_id: "MMR005" },
+  { id: "MMR005D005", name: "Kale", state_id: "MMR005" },
+  { id: "MMR014D001", name: "Taunggyi", state_id: "MMR014" },
+  { id: "MMR015S001", name: "Pa Laung Self-Administered Zone", state_id: "MMR015" },
+
+];
+
+
+const townships: Township[] = [
+  { id: "MMR001009", name: "Hpakant", district_id: "MMR001D002" },
+  { id: "MMR005012", name: "Monywa", district_id: "MMR005D003" },
+  { id: "MMR014001", name: "Taunggyi", district_id: "MMR014D001" },
+  { id: "MMR005027", name: "Kale", district_id: "MMR005D005" },
+  { id: "MMR015016", name: "Namhsan", district_id: "MMR015S001" }
+];
+
+export default function HelpDeskForm() {
   const {
     register,
     control,
     handleSubmit,
+    watch,
+    setValue,
     reset,
     formState: { errors, isSubmitSuccessful },
   } = useForm<HelpDeskFormValues>({
@@ -51,10 +95,29 @@ function App() {
       name: '',
       incidentDate: '',
       facilityName: '',
-      organization: '',
       phone: '',
+      stateId: '',
+      districtId: '',
+      townshipId: '',
     },
-  })
+  });
+  
+
+  const selectedStateId = watch('stateId');
+  const selectedDistrictId = watch('districtId');
+
+  useEffect(() => {
+    setValue('districtId', '');
+    setValue('townshipId', '');
+  }, [selectedStateId, setValue]);
+
+  useEffect(() => {
+    setValue('townshipId', '');
+  }, [selectedDistrictId, setValue]);
+
+
+  const filteredDistricts = districts.filter(d => d.state_id === selectedStateId);
+  const filteredTownships = townships.filter(t => t.district_id === selectedDistrictId);
 
   const emailReg = register('contactEmail', {
     required: 'Contact email is required',
@@ -62,23 +125,49 @@ function App() {
       value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       message: 'Enter a valid email address',
     },
-  })
-  const summaryReg = register('summary', { required: 'Summary is required' })
-  const descriptionReg = register('description', {
-    required: 'Description is required',
-  })
-  const nameReg = register('name', { required: 'Name is required' })
-  const facilityReg = register('facilityName', {
-    required: 'Facility name is required',
-  })
-  const orgReg = register('organization', {
-    required: 'Organization is required',
-  })
-  const phoneReg = register('phone', { required: 'Phone is required' })
+  });
+  const summaryReg = register('summary', { required: 'Summary is required' });
+  const descriptionReg = register('description', { required: 'Description is required' });
+  const nameReg = register('name', { required: 'Name is required' });
+  const facilityReg = register('facilityName', { required: 'Facility name is required' });
+  const phoneReg = register('phone', { required: 'Phone is required' });
 
-  const onSubmit = (data: HelpDeskFormValues) => {
-    console.info('Help desk submission', data)
+ const onSubmit = async (formData: HelpDeskFormValues) => {
+  try {
+  
+    const apiUrl = import.meta.env.VITE_API_URL; 
+    const stateName = states.find(s => s.id === formData.stateId)?.name || '';
+    const districtName = districts.find(d => d.id === formData.districtId)?.name || '';
+    const townshipName = townships.find(t => t.id === formData.townshipId)?.name || '';
+
+    const payloadData = {
+        ...formData,
+        stateId: stateName,      
+        districtId: districtName, 
+        townshipId: townshipName  
+      };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      mode: 'cors', 
+      headers: { 
+        'Content-Type': 'text/plain;charset=utf-8' 
+      },
+      body: JSON.stringify(payloadData),
+    });
+
+    const result = await response.json();
+    if (result.status === 'success') {
+      alert(`Ticket တင်သွင်းမှု အောင်မြင်ပါသည်။ သင်၏ Ticket ID: မှာ ${result.ticketId} ဖြစ်ပါသည်။`);
+      reset();
+    } else {
+      alert(`Error: ${result.message}`);
+    }
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("Ticket ပို့ရန် အခက်အခဲရှိနေပါသည်။ နောက်မှ ပြန်ကြိုးစားကြည့်ပါ။");
   }
+};
 
   return (
     <div className="tw:flex tw:min-h-screen tw:flex-col tw:bg-[#f4f7f6] tw:font-sans tw:text-[#333]">
@@ -109,7 +198,7 @@ function App() {
               HPMS Help Desk သို့အခက်အခဲ/ပြင်ဆင်/ဖြည့်စွက်လိုသည်များကိုအကြောင်းကြားခြင်း
             </Typography>
             <Typography variant="body2" className="tw:mt-3 tw:text-sm tw:leading-relaxed tw:text-[#5a5a5a]" style={{marginTop: '12px'}}>
-              အောက်ဖော်ပြပါသတင်းအချက်အလက်များကိုဖြည့်စွက်ပြီး Ticket ကို Submit
+              အောက်ဖော်ပြပါသေချာသောအချက်အလက်များကိုဖြည့်စွက်ပြီး Ticket ကို Submit
               ပြုလုပ်ပါ။ နည်းပညာအထောက်ကူပေးရေးအဖွဲ့မှဆက်သွယ်ဆောင်ရွက်ပေးပါမည်။{' '}You may also send tickets directly to {' '}
               <a
                 className="tw:text-[#1e5a8a] tw:underline tw:decoration-[#1e5a8a]/40 tw:underline-offset-2 tw:hover:text-[#164a72]"
@@ -128,8 +217,7 @@ function App() {
               className="tw:mb-6 tw:rounded-lg tw:border tw:border-blue-200 tw:bg-blue-50/90 tw:px-4 tw:py-3 tw:text-sm tw:text-blue-950"
               role="status"
             >
-              Thank you. Your request has been recorded (demo — connect an API to
-              persist tickets).
+              Thank you. Your request has been recorded.
               <button
                 type="button"
                 className="tw:ml-2 tw:font-medium tw:text-blue-800 tw:underline tw:decoration-blue-400"
@@ -144,7 +232,6 @@ function App() {
             <Stack spacing={2}>
               <TextField
                 label="Contact Email (required)"
-                placeholder="you@organization.org"
                 type="email"
                 autoComplete="email"
                 fullWidth
@@ -155,6 +242,33 @@ function App() {
                 onChange={emailReg.onChange}
                 onBlur={emailReg.onBlur}
                 inputRef={emailReg.ref}
+              />
+
+               <Controller
+                name="category"
+                control={control}
+                rules={{ required: 'Please choose a category' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.category}>
+                    <InputLabel id="category-label">Category (required)</InputLabel>
+                    <Select
+                      labelId="category-label"
+                      label="Category (required)"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      {CATEGORY_DATA.map((item) => (
+                        <MenuItem key={item.value} value={item.value}>
+                          {item.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.category?.message ? (
+                      <FormHelperText>{errors.category.message}</FormHelperText>
+                    ) : null}
+                  </FormControl>
+                )}
               />
 
               <TextField
@@ -185,33 +299,7 @@ function App() {
                 inputRef={descriptionReg.ref}
               />
 
-              <Controller
-                name="category"
-                control={control}
-                rules={{ required: 'Please choose a category' }}
-                render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.category}>
-                    <InputLabel id="category-label">Category (required)</InputLabel>
-                    <Select
-                      labelId="category-label"
-                      label="Category (required)"
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                    >
-                      {CATEGORY_DATA.map((item) => (
-                        <MenuItem key={item.value} value={item.value}>
-                          {item.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.category?.message ? (
-                      <FormHelperText>{errors.category.message}</FormHelperText>
-                    ) : null}
-                  </FormControl>
-                )}
-              />
-
+             
               <TextField
                 label="Name (required)"
                 placeholder="Your full name"
@@ -239,7 +327,6 @@ function App() {
                     }
                     localeText={{
                       toolbarTitle: 'SELECT DATE',
-                      // Default en-US placeholders render as YYYY / MM / DD; hide when empty
                       fieldYearPlaceholder: () => '',
                       fieldMonthPlaceholder: () => '',
                       fieldDayPlaceholder: () => '',
@@ -260,7 +347,6 @@ function App() {
                       },
                       field: {
                         onBlur: field.onBlur,
-                        
                         slotProps: {
                           textField: {
                             label: 'ဖြေရှင်းပေးရန်မျှော်မှန်းသည့်နေ့ (required)',
@@ -291,17 +377,82 @@ function App() {
                 inputRef={facilityReg.ref}
               />
 
-              <TextField
-                label="Organization/Hospital (required)"
-                placeholder="Organization name"
-                fullWidth
-                variant="outlined"
-                error={!!errors.organization}
-                helperText={errors.organization?.message}
-                name={orgReg.name}
-                onChange={orgReg.onChange}
-                onBlur={orgReg.onBlur}
-                inputRef={orgReg.ref}
+              <Controller
+                name="stateId"
+                control={control}
+                rules={{ required: 'ပြည်နယ်/တိုင်း ရွေးချယ်ရန် လိုအပ်ပါသည်' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.stateId}>
+                    <InputLabel id="state-label">ပြည်နယ်/တိုင်း (required)</InputLabel>
+                    <Select
+                      labelId="state-label"
+                      label="ပြည်နယ်/တိုင်း (required)"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <MenuItem value=""><em>-- ရွေးချယ်ရန် --</em></MenuItem>
+                      {states.map(s => (
+                        <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                      ))}
+                    </Select>
+                    {errors.stateId?.message && (
+                      <FormHelperText>{errors.stateId.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+
+              <Controller
+                name="districtId"
+                control={control}
+                rules={{ required: 'ခရိုင် ရွေးချယ်ရန် လိုအပ်ပါသည်' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.districtId} disabled={!selectedStateId}>
+                    <InputLabel id="district-label">ခရိုင် (required)</InputLabel>
+                    <Select
+                      labelId="district-label"
+                      label="ခရိုင် (required)"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <MenuItem value=""><em>-- ရွေးချယ်ရန် --</em></MenuItem>
+                      {filteredDistricts.map(d => (
+                        <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+                      ))}
+                    </Select>
+                    {errors.districtId?.message && (
+                      <FormHelperText>{errors.districtId.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+
+              <Controller
+                name="townshipId"
+                control={control}
+                rules={{ required: 'မြို့နယ် ရွေးချယ်ရန် လိုအပ်ပါသည်' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.townshipId} disabled={!selectedDistrictId}>
+                    <InputLabel id="township-label">မြို့နယ် (required)</InputLabel>
+                    <Select
+                      labelId="township-label"
+                      label="မြို့နယ် (required)"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <MenuItem value=""><em>-- ရွေးချယ်ရန် --</em></MenuItem>
+                      {filteredTownships.map(t => (
+                        <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>
+                      ))}
+                    </Select>
+                    {errors.townshipId?.message && (
+                      <FormHelperText>{errors.townshipId.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
               />
 
               <TextField
@@ -344,8 +495,7 @@ function App() {
           </form>
         </div>
       </main>
-
-      <footer className="tw:mt-auto tw:border-t tw:border-[#e5e5e5] tw:bg-[#fafafa] tw:px-4 tw:py-6 tw:text-center tw:text-xs tw:text-[#777]">
+       <footer className="tw:mt-auto tw:border-t tw:border-[#e5e5e5] tw:bg-[#fafafa] tw:px-4 tw:py-6 tw:text-center tw:text-xs tw:text-[#777]">
         <p className="tw:mb-2">
           <a className="tw:hover:text-[#333]" href="#">
             Privacy Policy
@@ -360,5 +510,5 @@ function App() {
     </div>
   )
 }
-
-export default App
+    
+      
