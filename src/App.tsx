@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -13,6 +13,7 @@ import type { DateFieldProps } from '@mui/x-date-pickers/DateField'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import { Controller, useForm } from 'react-hook-form'
+import { NotificationModal } from './NotificationModal';
 
 const SUPPORT_EMAIL = 'helpdesk@zenithtri.com '
 
@@ -23,6 +24,7 @@ const CATEGORY_DATA = [
   { value: 'feature', label: 'Feature request' },
   { value: 'other', label: 'Other' },
 ] as const
+
 
 interface District {
   id: string;     
@@ -76,6 +78,17 @@ const townships: Township[] = [
 ];
 
 export default function HelpDeskForm() {
+
+  const [modalConfig, setModalConfig] = useState<{
+  isOpen: boolean;
+  type: 'success' | 'error';
+  message: string;
+}>({
+  isOpen: false,
+  type: 'success',
+  message: '',
+});
+
   const {
     register,
     control,
@@ -83,7 +96,7 @@ export default function HelpDeskForm() {
     watch,
     setValue,
     reset,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors },
   } = useForm<HelpDeskFormValues>({
     defaultValues: {
       contactEmail: '',
@@ -130,42 +143,54 @@ export default function HelpDeskForm() {
   const facilityReg = register('facilityName', { required: 'Facility name is required' });
   const phoneReg = register('phone', { required: 'Phone is required' });
 
- const onSubmit = async (formData: HelpDeskFormValues) => {
-  try {
-  
-    const apiUrl = import.meta.env.VITE_API_URL; 
-    const stateName = states.find(s => s.id === formData.stateId)?.name || '';
-    const districtName = districts.find(d => d.id === formData.districtId)?.name || '';
-    const townshipName = townships.find(t => t.id === formData.townshipId)?.name || '';
+  const onSubmit = async (formData: HelpDeskFormValues) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL; 
+      const stateName = states.find(s => s.id === formData.stateId)?.name || '';
+      const districtName = districts.find(d => d.id === formData.districtId)?.name || '';
+      const townshipName = townships.find(t => t.id === formData.townshipId)?.name || '';
 
-    const payloadData = {
+      const payloadData = {
         ...formData,
         stateId: stateName,      
         districtId: districtName, 
         townshipId: townshipName  
       };
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      mode: 'cors', 
-      headers: { 
-        'Content-Type': 'text/plain;charset=utf-8' 
-      },
-      body: JSON.stringify(payloadData),
-    });
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        mode: 'cors', 
+        headers: { 
+          'Content-Type': 'text/plain;charset=utf-8' 
+        },
+        body: JSON.stringify(payloadData),
+      });
 
-    const result = await response.json();
-    if (result.status === 'success') {
-      alert(`Ticket တင်သွင်းမှု အောင်မြင်ပါသည်။ သင်၏ Ticket ID: မှာ ${result.ticketId} ဖြစ်ပါသည်။`);
-      reset();
-    } else {
-      alert(`Error: ${result.message}`);
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        setModalConfig({
+          isOpen: true,
+          type: 'success',
+          message: `Ticket တင်သွင်းမှု အောင်မြင်ပါသည်။\nသင်၏ Ticket ID မှာ ${result.ticketId} ဖြစ်ပါသည်။`,
+        });
+        reset(); 
+      } else {
+        setModalConfig({
+          isOpen: true,
+          type: 'error',
+          message: `Error: ${result.message}`,
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setModalConfig({
+        isOpen: true,
+        type: 'error',
+        message: "Ticket ပို့ရန် အခက်အခဲရှိနေပါသည်။\nနောက်မှ ပြန်ကြိုးစားကြည့်ပါ။",
+      });
     }
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("Ticket ပို့ရန် အခက်အခဲရှိနေပါသည်။ နောက်မှ ပြန်ကြိုးစားကြည့်ပါ။");
-  }
-};
+  };
 
   return (
     <div className="tw:flex tw:min-h-screen tw:flex-col tw:bg-[#f4f7f6] tw:font-sans tw:text-[#333]">
@@ -209,22 +234,6 @@ export default function HelpDeskForm() {
           </Box>
 
           <hr className="tw:mb-6 tw:border-[#e5e5e5]" />
-
-          {isSubmitSuccessful && (
-            <div
-              className="tw:mb-6 tw:rounded-lg tw:border tw:border-blue-200 tw:bg-blue-50/90 tw:px-4 tw:py-3 tw:text-sm tw:text-blue-950"
-              role="status"
-            >
-              Thank you. Your request has been recorded.
-              <button
-                type="button"
-                className="tw:ml-2 tw:font-medium tw:text-blue-800 tw:underline tw:decoration-blue-400"
-                onClick={() => reset()}
-              >
-                Submit another
-              </button>
-            </div>
-          )}
 
           <form className="tw:flex tw:flex-col" onSubmit={handleSubmit(onSubmit)} noValidate>
             <Stack spacing={2}>
@@ -489,6 +498,13 @@ export default function HelpDeskForm() {
               >
                 Submit
               </Button>
+
+              <NotificationModal
+                isOpen={modalConfig.isOpen}
+                type={modalConfig.type}
+                message={modalConfig.message}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+              />
             </Stack>
           </form>
         </div>
