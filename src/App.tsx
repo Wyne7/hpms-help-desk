@@ -55,8 +55,7 @@ type HelpDeskFormValues = {
 const states = [
   { id: "MMR001", name: "Kachin" }, 
   { id: "MMR005", name: "Sagaing" },
-  { id: "MMR014", name: "Shan (South)" },
-  { id: "MMR015", name: "Shan (North)" }
+  { id: "MMR014", name: "Shan (South)" }
 ];
 
 const districts: District[] = [
@@ -64,7 +63,7 @@ const districts: District[] = [
   { id: "MMR005D003", name: "Monywa", state_id: "MMR005" },
   { id: "MMR005D005", name: "Kale", state_id: "MMR005" },
   { id: "MMR014D001", name: "Taunggyi", state_id: "MMR014" },
-  { id: "MMR015S001", name: "Pa Laung Self-Administered Zone", state_id: "MMR015" },
+  { id: "MMR014D002", name: "Loilen", state_id: "MMR014" },
 
 ];
 
@@ -74,7 +73,7 @@ const townships: Township[] = [
   { id: "MMR005012", name: "Monywa", district_id: "MMR005D003" },
   { id: "MMR014001", name: "Taunggyi", district_id: "MMR014D001" },
   { id: "MMR005027", name: "Kale", district_id: "MMR005D005" },
-  { id: "MMR015016", name: "Namhsan", district_id: "MMR015S001" }
+  { id: "MMR014013", name: "Nansang", district_id: "MMR014D002" }
 ];
 
 export default function HelpDeskForm() {
